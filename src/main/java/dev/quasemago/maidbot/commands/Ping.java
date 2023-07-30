@@ -1,6 +1,6 @@
-package br.com.zrage.maidbot.commands;
+package dev.quasemago.maidbot.commands;
 
-import br.com.zrage.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.core.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.rest.util.Permission;
 import org.springframework.stereotype.Component;

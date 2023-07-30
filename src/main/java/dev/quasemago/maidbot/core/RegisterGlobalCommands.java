@@ -1,6 +1,6 @@
-package br.com.zrage.maidbot.core;
+package dev.quasemago.maidbot.core;
 
-import br.com.zrage.maidbot.MaidbotApplication;
+import dev.quasemago.maidbot.MaidBotApplication;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
@@ -44,10 +44,10 @@ public class RegisterGlobalCommands implements ApplicationRunner {
         // is changed/added/removed.
         applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands)
                 .doOnNext(command -> {
-                    MaidbotApplication.log.info("Registered global command: " + command.name());
-                    MaidbotApplication.slashCommandList.put(command.name(), command);
+                    MaidBotApplication.log.info("Registered global command: " + command.name());
+                    MaidBotApplication.slashCommandList.put(command.name(), command);
                 })
-                .doOnError(error -> MaidbotApplication.log.error("Error registering global command: ", error))
+                .doOnError(error -> MaidBotApplication.log.error("Error registering global command: ", error))
                 .subscribe();
     }
 }

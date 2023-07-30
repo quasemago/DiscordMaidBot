@@ -8,11 +8,11 @@
 		<version>3.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com.zrage</groupId>
+	<groupId>dev.quasemago</groupId>
 	<artifactId>maidbot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>maidbot</name>
-	<description>Tracking/Utils Bot for ZRAGE Community Server</description>
+	<description>Simple bot project with java and spring boot.</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
