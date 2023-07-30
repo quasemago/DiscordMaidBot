@@ -21,12 +21,16 @@ import java.util.List;
 
 @Configuration
 public class BotConfiguration {
-    private Dotenv dotenv;
+    private static Dotenv dotenv;
+
     public String getBotToken() {
         return dotenv.get("BOT_TOKEN");
     }
     public  String getBotDefaultPresence() {
         return dotenv.get("BOT_DEFAULT_PRESENCE");
+    }
+    public static Snowflake getBotOwner() {
+        return Snowflake.of(dotenv.get("BOT_OWNER"));
     }
 
     @Bean
@@ -38,7 +42,7 @@ public class BotConfiguration {
         }
 
         // Login do discord gateway.
-        final GatewayDiscordClient client = DiscordClient.create(this.getBotToken())
+        final GatewayDiscordClient gateway = DiscordClient.create(this.getBotToken())
                 .gateway()
                 .setEnabledIntents(IntentSet.all())
                 .setGatewayReactorResources(resources -> GatewayReactorResources.builder(resources)
@@ -51,20 +55,20 @@ public class BotConfiguration {
                 .login()
                 .block();
 
-        if (client == null) {
+        if (gateway == null) {
             MaidbotApplication.log.fatal("Failed to login into discord gateway!");
             System.exit(0);
         }
 
         // Hook events.
         for (final EventListener<T> listener : eventListenerList) {
-            client.on(listener.getEventType())
+            gateway.on(listener.getEventType())
                     .flatMap(listener::execute)
                     .onErrorResume(listener::handleError)
                     .subscribe();
         }
 
-        return client;
+        return gateway;
     }
 
     @Bean
