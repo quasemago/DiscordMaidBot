@@ -1,4 +1,4 @@
-package br.com.zrage.maidbot.listeners;
+package dev.quasemago.maidbot.listeners;
 
 import discord4j.core.event.domain.Event;
 import reactor.core.publisher.Mono;

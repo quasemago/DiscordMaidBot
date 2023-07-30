@@ -3,6 +3,8 @@ package dev.quasemago.maidbot.commands;
 import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.core.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import discord4j.rest.util.Permission;
@@ -15,25 +17,35 @@ import java.time.Instant;
 public class Help extends SlashCommand<ChatInputInteractionEvent> {
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
-        final var spec = EmbedCreateSpec.builder()
-                .color(Color.GREEN)
-                .title("MaidBot Help")
-                .timestamp(Instant.now())
-                .footer("MaidBot", null);
+        final MessageChannel channel = event.getInteraction()
+                .getChannel()
+                .block();
 
-        StringBuilder description = new StringBuilder();
-        if (MaidBotApplication.slashCommandList.isEmpty()) {
-            description.append("No commands registered");
+        if (!(channel instanceof PrivateChannel)) {
+            final var spec = EmbedCreateSpec.builder()
+                    .color(Color.GREEN)
+                    .title("MaidBot Help")
+                    .timestamp(Instant.now())
+                    .footer("MaidBot", null);
+
+            StringBuilder description = new StringBuilder();
+            if (MaidBotApplication.slashCommandList.isEmpty()) {
+                description.append("No commands registered");
+            } else {
+                MaidBotApplication.slashCommandList.forEach((name, command) -> description.append("/"+name+" = " + command.description() + "\n "));
+            }
+
+            final var embed = spec.description(description.toString()).build();
+            return event.reply()
+                    .withEphemeral(true)
+                    .withEmbeds(embed);
         } else {
-            MaidBotApplication.slashCommandList.forEach((name, command) -> description.append("/"+name+" = " + command.description() + "\n "));
+            return event.reply("This command can't be done in a PM/DM.")
+                    .withEphemeral(true);
         }
-
-        final var embed = spec.description(description.toString()).build();
-        return event.reply()
-                .withEphemeral(true)
-                .withEmbeds(embed);
     }
 
+    @Override
     public String getName() {
         return "help";
     }
