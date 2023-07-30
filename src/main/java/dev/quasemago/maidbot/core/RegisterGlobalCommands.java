@@ -1,6 +1,6 @@
-package br.com.zrage.maidbot.core;
+package dev.quasemago.maidbot.core;
 
-import br.com.zrage.maidbot.MaidbotApplication;
+import dev.quasemago.maidbot.MaidBotApplication;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
@@ -43,8 +43,11 @@ public class RegisterGlobalCommands implements ApplicationRunner {
         // Bulk overwrite commands. This is now idempotent, so it is safe to use this even when only 1 command
         // is changed/added/removed.
         applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands)
-                .doOnNext(command -> MaidbotApplication.log.info("Registered global command: " + command.name()))
-                .doOnError(e -> MaidbotApplication.log.error("Error registering global command: ", e))
+                .doOnNext(command -> {
+                    MaidBotApplication.log.info("Registered global command: " + command.name());
+                    MaidBotApplication.slashCommandList.put(command.name(), command);
+                })
+                .doOnError(error -> MaidBotApplication.log.error("Error registering global command: ", error))
                 .subscribe();
     }
 }
