@@ -1,4 +1,4 @@
-package br.com.zrage.maidbot.services;
+package dev.quasemago.maidbot.services;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
