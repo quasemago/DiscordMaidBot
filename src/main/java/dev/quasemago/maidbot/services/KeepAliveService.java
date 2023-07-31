@@ -1,5 +1,6 @@
 package dev.quasemago.maidbot.services;
 
+import dev.quasemago.maidbot.helpers.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +8,6 @@ import org.springframework.stereotype.Service;
 public class KeepAliveService {
     @Scheduled(fixedRate = 60000)
     public void keepAlive() {
-        System.out.println("Keeping alive...");
+        Logger.log.debug("Keeping alive...");
     }
 }

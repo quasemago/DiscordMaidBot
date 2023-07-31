@@ -2,6 +2,7 @@ package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.User;
@@ -34,7 +35,7 @@ public class Stop extends SlashCommand<ChatInputInteractionEvent> {
                     .withEphemeral(false)
                     .withContent("Bot is stopping...")
                     .doOnSuccess(ignore -> {
-                        MaidBotApplication.log.info("Bot is stopping...");
+                        Logger.log.info("Bot is stopping...");
                         System.exit(0);
                     });
         } else {

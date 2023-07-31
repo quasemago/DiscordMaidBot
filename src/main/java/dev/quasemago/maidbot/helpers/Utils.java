@@ -1,6 +1,6 @@
 package dev.quasemago.maidbot.helpers;
 
-import dev.quasemago.maidbot.core.BotConfiguration;
+import dev.quasemago.maidbot.data.BotConfiguration;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.User;
 import discord4j.rest.util.Permission;

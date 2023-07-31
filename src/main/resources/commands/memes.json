@@ -1,0 +1,48 @@
+{
+  "name": "memes",
+  "description": "Memes!",
+  "options": [
+    {
+      "name": "add",
+      "description": "add meme",
+      "type": 1,
+      "options": [
+        {
+          "name": "url",
+          "description": "Url of the meme!",
+          "type": 3,
+          "required": 1
+        },
+        {
+          "name": "name",
+          "description": "Name of the meme!",
+          "type": 3,
+          "required": 1
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "description": "list memes.",
+      "type": 1
+    },
+    {
+      "name": "get",
+      "description": "Get meme",
+      "type": 1,
+      "options": [
+        {
+          "name": "id",
+          "description": "ID of the meme!",
+          "type": 4,
+          "required": 1
+        }
+      ]
+    },
+    {
+      "name": "random",
+      "description": "Get Random meme",
+      "type": 1
+    }
+  ]
+}
