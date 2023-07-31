@@ -1,8 +1,8 @@
-package dev.quasemago.maidbot.listeners;
+package dev.quasemago.maidbot.events.listeners;
 
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
-import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.models.SlashCommand;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import org.springframework.stereotype.Component;
@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-// TODO: Rework this.
 @Component
 public class SlashCommandListener {
+    // TODO: Improve this.
     private final Collection<SlashCommand<ChatInputInteractionEvent>> commands;
 
     public SlashCommandListener(List<SlashCommand<ChatInputInteractionEvent>> slashCommandList, GatewayDiscordClient client) {

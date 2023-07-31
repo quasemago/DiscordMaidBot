@@ -1,7 +1,7 @@
 package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.MaidBotApplication;
-import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.models.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 @Component
-public class About extends SlashCommand<ChatInputInteractionEvent> {
+public class AboutCommand extends SlashCommand<ChatInputInteractionEvent> {
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
         final User bot = event.getInteraction()

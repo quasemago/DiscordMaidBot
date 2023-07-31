@@ -1,9 +1,9 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.models.SlashCommand;
 import dev.quasemago.maidbot.helpers.Logger;
-import dev.quasemago.maidbot.models.MemesModel;
-import dev.quasemago.maidbot.repository.MemesRepository;
+import dev.quasemago.maidbot.models.Memes;
+import dev.quasemago.maidbot.data.repository.MemesRepository;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -21,12 +21,14 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 @Component
-public class Memes extends SlashCommand<ChatInputInteractionEvent> {
+public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
     @Autowired
     private MemesRepository memesRepository;
+    private final Pattern numericPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
@@ -82,7 +84,7 @@ public class Memes extends SlashCommand<ChatInputInteractionEvent> {
                 .asString();
 
         final Date date = new Date(System.currentTimeMillis());
-        final MemesModel meme = new MemesModel(date, date, guildId.asLong(),name, url);
+        final Memes meme = new Memes(date, date, guildId.asLong(),name, url);
 
         // Save to database.
         // TODO: Improve this!
@@ -118,7 +120,7 @@ public class Memes extends SlashCommand<ChatInputInteractionEvent> {
         }
 
         // Get memes list from database.
-        final Iterable<MemesModel> memesList = memesRepository.findAllByGuildId(guildId.asLong());
+        final Iterable<Memes> memesList = memesRepository.findAllByGuildId(guildId.asLong());
 
         // Create embed to reply.
         final var spec = EmbedCreateSpec.builder()
@@ -137,13 +139,24 @@ public class Memes extends SlashCommand<ChatInputInteractionEvent> {
     }
 
     private Mono<Void> getMeme(ChatInputInteractionEvent event, ApplicationCommandInteractionOption option, Snowflake guildId) {
-        final long id = option.getOption("id")
+        final String search = option.getOption("id")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .get()
-                .asLong();
+                .asString();
 
         // Get meme from database.
-        final MemesModel meme = memesRepository.findByIdAndGuildId(id, guildId.asLong());
+        final Memes meme;
+        if (!numericPattern.matcher(search).matches()) {
+            meme = memesRepository.findByNameContainingIgnoreCaseAndGuildId(search, guildId.asLong());
+        } else {
+            meme = memesRepository.findByIdAndGuildId(Long.parseLong(search), guildId.asLong());
+        }
+
+        if (meme == null) {
+            return event.reply()
+                    .withEphemeral(true)
+                    .withContent("Meme not found!");
+        }
 
         // Send embed to user.
         return event.reply()
@@ -156,11 +169,11 @@ public class Memes extends SlashCommand<ChatInputInteractionEvent> {
 
     private Mono<Void> randomMeme(ChatInputInteractionEvent event, Snowflake guildId) {
         // Get memes list from database.
-        final Iterable<MemesModel> memesList = memesRepository.findAllByGuildId(guildId.asLong());
+        final Iterable<Memes> memesList = memesRepository.findAllByGuildId(guildId.asLong());
 
         // Convert iterable to list and pick a random meme.
-        final List<MemesModel> memes = StreamSupport.stream(memesList.spliterator(), false).toList();
-        final MemesModel meme = memes.get(new Random().nextInt(memes.size()));
+        final List<Memes> memes = StreamSupport.stream(memesList.spliterator(), false).toList();
+        final Memes meme = memes.get(new Random().nextInt(memes.size()));
 
         // Send embed to user.
         return event.reply()

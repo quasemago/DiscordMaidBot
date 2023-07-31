@@ -1,7 +1,7 @@
 package dev.quasemago.maidbot.data;
 
 import dev.quasemago.maidbot.helpers.Logger;
-import dev.quasemago.maidbot.listeners.EventListener;
+import dev.quasemago.maidbot.events.GenericEventInterface;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
@@ -37,7 +37,7 @@ public class BotConfiguration {
     }
 
     @Bean
-    public <T extends Event>GatewayDiscordClient gatewayDiscordClient(final List<EventListener<T>> eventListenerList) {
+    public <T extends Event>GatewayDiscordClient gatewayDiscordClient(final List<GenericEventInterface<T>> eventListenerList) {
         if (this.getBotToken().isEmpty()) {
             Logger.log.fatal("Bot token is empty, please set BOT_TOKEN environment variable!");
             System.exit(0);
@@ -63,7 +63,7 @@ public class BotConfiguration {
         }
 
         // Hook events.
-        for (final EventListener<T> listener : eventListenerList) {
+        for (final GenericEventInterface<T> listener : eventListenerList) {
             gateway.on(listener.getEventType())
                     .flatMap(listener::execute)
                     .onErrorResume(listener::handleError)
