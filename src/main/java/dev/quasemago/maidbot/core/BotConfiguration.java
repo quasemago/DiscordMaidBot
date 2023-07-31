@@ -1,6 +1,5 @@
 package dev.quasemago.maidbot.core;
 
-import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.listeners.EventListener;
 import discord4j.common.util.Snowflake;
