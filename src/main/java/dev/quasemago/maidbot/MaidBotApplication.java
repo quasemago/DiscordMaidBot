@@ -11,7 +11,7 @@ import java.util.Map;
 @SpringBootApplication
 @EnableScheduling
 public class MaidBotApplication {
-	public static final String VERSION = "0.0.2";
+	public static final String VERSION = "0.0.3";
 	public static Map<String, ApplicationCommandData> slashCommandList = new HashMap<>();
 
 	public static void main(String[] args) {
