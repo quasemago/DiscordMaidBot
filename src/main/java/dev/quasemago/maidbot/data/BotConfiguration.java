@@ -1,4 +1,4 @@
-package dev.quasemago.maidbot.core;
+package dev.quasemago.maidbot.data;
 
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.listeners.EventListener;
