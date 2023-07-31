@@ -23,12 +23,13 @@ public class About extends SlashCommand<ChatInputInteractionEvent> {
 
         final String botName = bot.getUsername();
 
+        // TODO: Add more information (e.g. uptime, server count, etc).
         final EmbedCreateSpec embed = EmbedCreateSpec.builder()
                 .color(Color.of(86, 139, 255))
                 .title("🤖 " + botName + " About")
-                .url("https://github.com/quasemago/DiscordMaidBot")
+                .url(MaidBotApplication.GITHUB_URL)
                 .description("**" + botName + "** is a simple discord bot project made with java and spring boot.")
-                .addField("Created by", "mxronning on discord ([GitHub](https://github.com/quasemago))", true)
+                .addField("Created by", MaidBotApplication.DISCORD_AUTHOR + " (Discord) or "+ MaidBotApplication.GITHUB_AUTHOR +" ([GitHub]("+ MaidBotApplication.GITHUB_AUTHOR_URL +"))", true)
                 .addField("Version", MaidBotApplication.VERSION, true)
                 .timestamp(Instant.now())
                 .footer("🤖 BOT ID: " + bot.getId().asString(), null)

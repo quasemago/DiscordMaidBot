@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+// TODO: Rework this.
 @Component
 public class SlashCommandListener {
     private final Collection<SlashCommand<ChatInputInteractionEvent>> commands;
@@ -24,7 +25,6 @@ public class SlashCommandListener {
     }
 
     public Mono<Void> handle(ChatInputInteractionEvent event) {
-        // TODO: Improve this.
         return Flux.fromIterable(commands)
                 .filter(command -> command.getName().equals(event.getCommandName()))
                 .next()
