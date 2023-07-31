@@ -1,6 +1,7 @@
 package dev.quasemago.maidbot.core;
 
 import dev.quasemago.maidbot.MaidBotApplication;
+import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.listeners.EventListener;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
@@ -37,7 +38,7 @@ public class BotConfiguration {
     public <T extends Event>GatewayDiscordClient gatewayDiscordClient(final List<EventListener<T>> eventListenerList) {
         dotenv = Dotenv.load();
         if (this.getBotToken().isEmpty()) {
-            MaidBotApplication.log.fatal("Bot token is empty, please set BOT_TOKEN environment variable!");
+            Logger.log.fatal("Bot token is empty, please set BOT_TOKEN environment variable!");
             System.exit(0);
         }
 
@@ -56,7 +57,7 @@ public class BotConfiguration {
                 .block();
 
         if (gateway == null) {
-            MaidBotApplication.log.fatal("Failed to login into discord gateway!");
+            Logger.log.fatal("Failed to login into discord gateway!");
             System.exit(0);
         }
 

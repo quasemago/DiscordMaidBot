@@ -1,5 +1,6 @@
 package dev.quasemago.maidbot.listeners;
 
+import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import dev.quasemago.maidbot.core.SlashCommand;
 import discord4j.core.GatewayDiscordClient;
@@ -7,9 +8,11 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class SlashCommandListener {
@@ -29,6 +32,9 @@ public class SlashCommandListener {
                         .withEphemeral(true)
                         .withContent("You don't have permission to use this command.")
                         .hasElement())
-                .flatMap(command -> command.exe(event));
+                .flatMap(command -> command.exe(event))
+                .publishOn(Schedulers.boundedElastic())
+                .doOnSuccess(ignore ->
+                        Logger.log.debug("Slash command " + event.getCommandName() + " executed by " + event.getInteraction().getUser().getUsername() + " in " + Objects.requireNonNull(event.getInteraction().getGuild().block()).getName()));
     }
 }
