@@ -1,7 +1,6 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.MaidBotApplication;
-import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.models.SlashCommand;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class Stop extends SlashCommand<ChatInputInteractionEvent> {
+public class StopCommand extends SlashCommand<ChatInputInteractionEvent> {
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
         final MessageChannel channel = event.getInteraction()

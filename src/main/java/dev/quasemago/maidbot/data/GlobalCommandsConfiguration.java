@@ -1,25 +1,26 @@
-package dev.quasemago.maidbot.core;
+package dev.quasemago.maidbot.data;
 
 import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.helpers.Logger;
+import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class RegisterGlobalCommands implements ApplicationRunner {
+@Configuration
+public class GlobalCommandsConfiguration implements ApplicationRunner {
     private final RestClient client;
 
-    public RegisterGlobalCommands(RestClient client) {
+    public GlobalCommandsConfiguration(RestClient client) {
         this.client = client;
     }
 
@@ -44,10 +45,7 @@ public class RegisterGlobalCommands implements ApplicationRunner {
         // Bulk overwrite commands. This is now idempotent, so it is safe to use this even when only 1 command
         // is changed/added/removed.
         applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands)
-                .doOnNext(command -> {
-                    Logger.log.info("Registered global command: " + command.name());
-                    MaidBotApplication.slashCommandList.put(command.name(), command);
-                })
+                .doOnNext(command -> Logger.log.info("Registered global command: " + command.name()))
                 .doOnError(error -> Logger.log.error("Error registering global command: ", error))
                 .subscribe();
     }

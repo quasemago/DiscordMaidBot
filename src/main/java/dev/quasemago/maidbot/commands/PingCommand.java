@@ -1,6 +1,6 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.core.SlashCommand;
+import dev.quasemago.maidbot.models.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.PrivateChannel;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class Ping extends SlashCommand<ChatInputInteractionEvent> {
+public class PingCommand extends SlashCommand<ChatInputInteractionEvent> {
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
         final MessageChannel channel = event.getInteraction()

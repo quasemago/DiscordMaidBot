@@ -18,7 +18,7 @@ public class MaidBotApplication {
 	public static final String DISCORD_AUTHOR = "mxronning";
 
 	// TODO: Improve this.
-	public static Map<String, ApplicationCommandData> slashCommandList = new HashMap<>();
+	public static Map<String, ApplicationCommandData> aaslashCommandList = new HashMap<>();
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(MaidBotApplication.class)

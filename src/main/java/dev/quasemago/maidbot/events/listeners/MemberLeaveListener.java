@@ -1,4 +1,4 @@
-package dev.quasemago.maidbot.listeners;
+package dev.quasemago.maidbot.events.listeners;
 
 import dev.quasemago.maidbot.helpers.Logger;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;

@@ -1,4 +1,4 @@
-package dev.quasemago.maidbot.services;
+package dev.quasemago.maidbot;
 
 import dev.quasemago.maidbot.helpers.Logger;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,9 +1,9 @@
-package dev.quasemago.maidbot.listeners;
+package dev.quasemago.maidbot.events;
 
 import discord4j.core.event.domain.Event;
 import reactor.core.publisher.Mono;
 
-public interface EventListener<T extends Event> {
+public interface GenericEventInterface<T extends Event> {
     Class<T> getEventType();
     Mono<Void> execute(T event);
 
