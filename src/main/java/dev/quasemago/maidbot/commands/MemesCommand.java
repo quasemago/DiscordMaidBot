@@ -21,12 +21,14 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 @Component
 public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
     @Autowired
     private MemesRepository memesRepository;
+    private final Pattern numericPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
@@ -137,13 +139,24 @@ public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
     }
 
     private Mono<Void> getMeme(ChatInputInteractionEvent event, ApplicationCommandInteractionOption option, Snowflake guildId) {
-        final long id = option.getOption("id")
+        final String search = option.getOption("id")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .get()
-                .asLong();
+                .asString();
 
         // Get meme from database.
-        final Memes meme = memesRepository.findByIdAndGuildId(id, guildId.asLong());
+        final Memes meme;
+        if (!numericPattern.matcher(search).matches()) {
+            meme = memesRepository.findByNameContainingIgnoreCaseAndGuildId(search, guildId.asLong());
+        } else {
+            meme = memesRepository.findByIdAndGuildId(Long.parseLong(search), guildId.asLong());
+        }
+
+        if (meme == null) {
+            return event.reply()
+                    .withEphemeral(true)
+                    .withContent("Meme not found!");
+        }
 
         // Send embed to user.
         return event.reply()
