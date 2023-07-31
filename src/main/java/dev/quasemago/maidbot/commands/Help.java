@@ -3,6 +3,7 @@ package dev.quasemago.maidbot.commands;
 import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.core.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -22,17 +23,26 @@ public class Help extends SlashCommand<ChatInputInteractionEvent> {
                 .block();
 
         if (!(channel instanceof PrivateChannel)) {
+            final User bot = event.getInteraction()
+                    .getClient()
+                    .getSelf()
+                    .block();
+
+            final String botName = bot.getUsername();
+
+            // TODO: Improve this.
             final var spec = EmbedCreateSpec.builder()
                     .color(Color.GREEN)
-                    .title("MaidBot Help")
+                    .title("🤖 " + botName + " Help")
+                    .url(MaidBotApplication.GITHUB_URL)
                     .timestamp(Instant.now())
-                    .footer("MaidBot", null);
+                    .footer(botName, null);
 
             StringBuilder description = new StringBuilder();
             if (MaidBotApplication.slashCommandList.isEmpty()) {
                 description.append("No commands registered");
             } else {
-                MaidBotApplication.slashCommandList.forEach((name, command) -> description.append("/"+name+" = " + command.description() + "\n "));
+                MaidBotApplication.slashCommandList.forEach((name, command) -> description.append("**/"+name+"** - " + command.description() + "\n "));
             }
 
             final var embed = spec.description(description.toString()).build();

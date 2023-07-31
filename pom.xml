@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.quasemago</groupId>
-	<artifactId>maidbot</artifactId>
+	<artifactId>DiscordMaidBot</artifactId>
 	<version>0.0.3</version>
-	<name>maidbot</name>
-	<description>Simple bot project with java and spring boot.</description>
+	<name>DiscordMaidBot</name>
+	<description>Simple discord bot project made with java and spring boot.</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
