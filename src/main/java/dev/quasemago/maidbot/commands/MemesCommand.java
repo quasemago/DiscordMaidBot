@@ -48,7 +48,7 @@ public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
                         .withContent("Failed to get memes list.");
             }
 
-            final ApplicationCommandInteractionOption options = event.getOptions().get(0);
+            final var options = event.getOptions().get(0);
             final String optionName = options.getName();
             switch (optionName) {
                 case "add" -> {
@@ -64,6 +64,8 @@ public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
                     return randomMeme(event, guild);
                 }
             }
+
+            Logger.log.error("Failed to get command options: {}", event);
             return event.reply("Failed get command options.")
                     .withEphemeral(true);
         } else {
