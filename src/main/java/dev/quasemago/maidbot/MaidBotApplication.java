@@ -17,9 +17,6 @@ public class MaidBotApplication {
 	public static final String GITHUB_AUTHOR_URL = "https://github.com/quasemago";
 	public static final String DISCORD_AUTHOR = "mxronning";
 
-	// TODO: Improve this.
-	public static Map<String, ApplicationCommandData> aaslashCommandList = new HashMap<>();
-
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(MaidBotApplication.class)
 				.headless(false)
