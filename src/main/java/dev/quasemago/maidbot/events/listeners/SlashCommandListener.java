@@ -33,8 +33,6 @@ public class SlashCommandListener {
                         .withContent("You don't have permission to use this command.")
                         .hasElement())
                 .flatMap(command -> command.exe(event))
-                .publishOn(Schedulers.boundedElastic())
-                .doOnSuccess(ignore ->
-                        Logger.log.debug("Slash command " + event.getCommandName() + " executed by " + event.getInteraction().getUser().getUsername() + " in " + Objects.requireNonNull(event.getInteraction().getGuild().block()).getName()));
+                .doOnSuccess(ignore -> Logger.log.debug("Slash command " + event.getCommandName() + " executed by " + event.getInteraction().getUser().getUsername()));
     }
 }
