@@ -5,9 +5,5 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Logger {
-    public static org.apache.logging.log4j.Logger log;
-
-    public Logger() {
-        log = LogManager.getLogger(Logger.class);
-    }
+    public static org.apache.logging.log4j.Logger log = LogManager.getLogger(Logger.class);
 }

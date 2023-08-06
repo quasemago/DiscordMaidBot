@@ -6,6 +6,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
+import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.gateway.GatewayReactorResources;
@@ -17,6 +18,8 @@ import org.springframework.context.annotation.Configuration;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -38,7 +41,7 @@ public class BotConfiguration {
 
     @Bean
     public <T extends Event>GatewayDiscordClient gatewayDiscordClient(final List<GenericEventInterface<T>> eventListenerList) {
-        if (this.getBotToken().isEmpty()) {
+        if (this.getBotToken() == null || this.getBotToken().isEmpty()) {
             Logger.log.fatal("Bot token is empty, please set BOT_TOKEN environment variable!");
             System.exit(0);
         }
@@ -53,7 +56,6 @@ public class BotConfiguration {
                                 .followRedirect(true)
                                 .secure())
                         .build())
-                .setInitialPresence(ignore -> ClientPresence.online(ClientActivity.playing(this.getBotDefaultPresence())))
                 .login()
                 .block();
 
@@ -61,6 +63,22 @@ public class BotConfiguration {
             Logger.log.fatal("Failed to login into discord gateway!");
             System.exit(0);
         }
+
+        // Update bot presence.
+        final List<String> presence = Arrays.stream(this.getBotDefaultPresence()
+                        .split(";"))
+                .toList();
+
+        if (presence.size() < 2) {
+            Logger.log.fatal("Invalid default presence format, please set BOT_DEFAULT_PRESENCE environment variable! Correct usage: \"Type;Text;Url (use # if isn't applicable)\"");
+            System.exit(0);
+        }
+
+        gateway.updatePresence(ClientPresence
+                        .online(ClientActivity.of(Activity.Type.of(Integer.parseInt(presence.get(0))),
+                                presence.get(1),
+                                presence.size() == 2 ? null : presence.get(2)))) // Check if url is present.
+                .block();
 
         // Hook events.
         for (final GenericEventInterface<T> listener : eventListenerList) {
