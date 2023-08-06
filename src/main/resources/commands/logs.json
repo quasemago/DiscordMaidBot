@@ -1,0 +1,29 @@
+{
+  "name": "logs",
+  "description": "Logs Feature!",
+  "options": [
+    {
+      "name": "status",
+      "description": "Get server logs status.",
+      "type": 1
+    },
+    {
+      "name": "toggle",
+      "description": "Toggle log system.",
+      "type": 1,
+      "options": [
+        {
+            "name": "status",
+            "description": "Enable or disabled log system.",
+            "type": 5,
+            "required": true
+        },
+        {
+            "name": "channel",
+            "description": "Channel to send logs.",
+            "type": 7
+        }
+      ]
+    }
+  ]
+}
