@@ -79,7 +79,7 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
         if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("Logs Status")
+                            .title("\uD83D\uDCF0 Logs Status")
                             .description("Logs have not yet been configured.\nType ``/logs toggle`` to configure them.")
                             .color(Color.RED)
                             .build())
@@ -96,8 +96,8 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("Logs Status")
-                            .description("Logs are Enabled.\nType ``/logs toggle`` to reconfigure them.")
+                            .title("\uD83D\uDCF0 Logs Status")
+                            .description("Logs are Enabled.\nType ``/logs toggle`` to configure them.")
                             .addField("Logs Channel", "<#"+ serverGuild.getLogChannelId() +">", false)
                             .addField("Logs Types", logsTypes.toString(), false)
                             .color(Color.GREEN)
@@ -116,13 +116,7 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
         if (!statusOption) {
             // Since the guild isn't in the database,
             // logs are disabled by default.
-            if (serverGuild == null) {
-                return event.reply("Logs are already disabled.")
-                        .withEphemeral(true);
-            }
-
-            // Logs are already disabled.
-            if (serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
+            if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
                 return event.reply("Logs are already disabled.")
                         .withEphemeral(true);
             }
@@ -134,7 +128,7 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("Logs Disabled")
+                            .title("\uD83D\uDCF0 Logs Disabled")
                             .description("Logs have been disabled.")
                             .build())
                     .withEphemeral(true);
@@ -164,11 +158,11 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
 
         // If the guild isn't in the database,
         // it means that the initial configuration of the logs has not been done yet.
-        if (serverGuild == null) {
+        if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("Logs Toggle")
-                            .description("Logs have not yet been configured.\nConfigure:")
+                            .title("\uD83D\uDCF0 Logs Configuration")
+                            .description("Logs have not yet been configured.\nConfigure log options:")
                             .build())
                     .withComponents(ActionRow.of(createTempMenuOptions(null)))
                     .withEphemeral(true)
@@ -180,8 +174,8 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
         } else {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("Logs Toggle")
-                            .description("Logs are already configured.\nConfigure:")
+                            .title("\uD83D\uDCF0 Logs Configuration")
+                            .description("Logs are already configured.\nConfigure log options:")
                             .build())
                     .withComponents(ActionRow.of(createTempMenuOptions(serverGuild)))
                     .withEphemeral(true)
@@ -191,29 +185,6 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
                         return Mono.empty();
                     });
         }
-    }
-
-    private SelectMenu createTempMenuOptions(Servers serverGuild) {
-        long logFlags;
-        if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
-            logFlags = 0L;
-        } else {
-            logFlags = serverGuild.getLogFlags();
-        }
-
-        final LogTypesSet logTypesSet = LogTypesSet.of(logFlags);
-
-        List<SelectMenu.Option> options = new ArrayList<>();
-        for (LogTypes logType : LogTypes.values()) {
-            if (logTypesSet.contains(logType)) {
-                options.add(SelectMenu.Option.of(logType.getName(), String.valueOf(logType.getValue())).withDefault(true));
-            } else {
-                options.add(SelectMenu.Option.of(logType.getName(), String.valueOf(logType.getValue())));
-            }
-        }
-
-        return SelectMenu.of("logs-toggle-options", options)
-                .withMaxValues(LogTypes.values().length).withMinValues(1);
     }
 
     private Mono<Void> createTempMenuListener(ChatInputInteractionEvent event, long channelId) {
@@ -244,8 +215,10 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
                         }
 
                         serversRepository.save(serverGuild);
-                        return e.reply("Updated! values: {"+ rawValue +"} with channel {<#"+ channelId +">}")
-                                .withEphemeral(true);
+                        return e.deferEdit()
+                                .then(e.editReply("**Updated!**")
+                                        .withComponents(ActionRow.of(createTempMenuOptions(serverGuild))))
+                                .then();
                     } else {
                         return Mono.empty();
                     }
@@ -258,6 +231,29 @@ public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
                     return Mono.empty();
                 })
                 .then();
+    }
+
+    private SelectMenu createTempMenuOptions(Servers serverGuild) {
+        long logFlags;
+        if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
+            logFlags = 0L;
+        } else {
+            logFlags = serverGuild.getLogFlags();
+        }
+
+        final LogTypesSet logTypesSet = LogTypesSet.of(logFlags);
+
+        List<SelectMenu.Option> options = new ArrayList<>();
+        for (LogTypes logType : LogTypes.values()) {
+            if (logTypesSet.contains(logType)) {
+                options.add(SelectMenu.Option.of(logType.getName(), String.valueOf(logType.getValue())).withDefault(true));
+            } else {
+                options.add(SelectMenu.Option.of(logType.getName(), String.valueOf(logType.getValue())));
+            }
+        }
+
+        return SelectMenu.of("logs-toggle-options", options)
+                .withMaxValues(LogTypes.values().length).withMinValues(1);
     }
 
     @Override

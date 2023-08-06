@@ -7,11 +7,11 @@ public enum LogTypes {
     MEMBER_LEAVE((1<<4), "Member Leave Server"),
     MEMBER_BAN((1<<5), "Member Ban"),
     MEMBER_UNBAN((1<<6), "Member Unban"),
-    MEMBER_KICK((1<<7), "Member Kick"),
-    MEMBER_MUTE((1<<8), "Member Mute"),
-    MEMBER_UNMUTE((1<<9), "Member Unmute");
+    MEMBER_JOIN_VOICE((1<<7), "Member Join Voice Channel"),
+    MEMBER_LEAVE_VOICE((1<<8), "Member Leave Voice Channel");
 
     // TODO: Add more log types.
+    //  like: kick, mute, unmute, etc.
 
     private final long value;
     private final String name;
