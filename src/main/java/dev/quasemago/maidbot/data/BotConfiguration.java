@@ -1,7 +1,7 @@
 package dev.quasemago.maidbot.data;
 
-import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.events.GenericEventInterface;
+import dev.quasemago.maidbot.helpers.Logger;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Configuration;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

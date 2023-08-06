@@ -1,12 +1,8 @@
 package dev.quasemago.maidbot;
 
-import discord4j.discordjson.json.ApplicationCommandData;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootApplication
 @EnableScheduling
