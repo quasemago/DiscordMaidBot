@@ -4,14 +4,17 @@ import dev.quasemago.maidbot.models.SlashCommand;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.PrivateChannel;
+import discord4j.core.spec.MessageCreateSpec;
 import discord4j.rest.util.Permission;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.util.List;
 
 @Component
 public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
@@ -50,22 +53,38 @@ public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
     }
 
     private Mono<Void> dumpLogs(ChatInputInteractionEvent event) {
-        // Get logs from local file.
-        try (BufferedReader br = new BufferedReader(new FileReader(new File("logs/maidbot.log").getAbsolutePath()))) {
-            final StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
-            }
-            final String content = sb.toString();
-            return event.reply("```" + content + "```")
-                    .withEphemeral(true);
-        } catch (Exception e) {
-            Logger.log.error("Failed to read logs file: {}", e.getMessage());
+        // Get last 100 lines of local logs.
+        final List<String> logsLines = Utils.readLastLine(new File("logs/maidbot.log"), 150);
+        if (logsLines.size() == 0) {
             return event.reply("Failed to read logs file.")
+                    .withEphemeral(true);
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        logsLines.forEach(line -> sb.append(line).append(System.lineSeparator()));
+
+        final String logs = sb.toString();
+
+        if (logs.length() > 1750) {
+            // Send the first message with the logs.
+            final MessageChannel channel = event.getInteraction()
+                    .getUser()
+                    .getPrivateChannel()
+                    .block();
+
+            if (channel == null) {
+                return event.reply("Failed to get your private channel interaction. Try again!")
+                        .withEphemeral(true);
+            }
+
+            return event.reply("The last 150 lines of the logs have been sent to your DM!")
+                    .withEphemeral(true)
+                    .then(channel.createMessage(msg ->
+                            msg.addFile("maidbot.log", new ByteArrayInputStream(logs.getBytes()))))
+                    .then();
+        } else {
+            // Since the logs are less than 2000 characters, we can just send it in one message.
+            return event.reply("The last 150 lines of the logs: ```" + logs + "```")
                     .withEphemeral(true);
         }
     }
