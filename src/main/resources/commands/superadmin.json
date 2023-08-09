@@ -1,0 +1,16 @@
+{
+  "name": "superadmin",
+  "description": "Owner commands!",
+  "options": [
+    {
+      "name": "stop",
+      "description": "Stop the bot!",
+      "type": 1
+    },
+    {
+      "name": "logs",
+      "description": "Dump the bot logs.",
+      "type": 1
+    }
+  ]
+}

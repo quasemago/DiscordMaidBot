@@ -37,7 +37,7 @@ public abstract class MessageUpdateListener {
                                             .getChannelById(Snowflake.of(serverGuild.getLogChannelId()))
                                             .ofType(MessageChannel.class)
                                             .flatMap(channel -> channel.createMessage(EmbedCreateSpec.builder()
-                                                            .title("\uD83D\uDCDD Edited message in <#"+ channel.getId().asString() +">")
+                                                            .title("\uD83D\uDCDD Edited message in <#"+ e.getChannelId().asString() +">")
                                                             .description(author.getUsername())
                                                             .color(Color.LIGHT_SEA_GREEN)
                                                             .addField("Old Message", oldEvent != null ? oldEvent.getContent() : "None", false)

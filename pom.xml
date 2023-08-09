@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>dev.quasemago</groupId>
 	<artifactId>DiscordMaidBot</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<name>DiscordMaidBot</name>
 	<description>Simple discord bot project made with java and spring boot.</description>
 	<properties>
@@ -62,6 +62,11 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j2-impl</artifactId>
 			<version>2.20.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.7</version>
 		</dependency>
 	</dependencies>
 

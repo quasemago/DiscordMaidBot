@@ -37,7 +37,7 @@ public abstract class MessageDeleteListener {
                                             .getChannelById(Snowflake.of(serverGuild.getLogChannelId()))
                                             .ofType(MessageChannel.class)
                                             .flatMap(channel -> channel.createMessage(EmbedCreateSpec.builder()
-                                                    .title("\uD83D\uDDD1 Message deleted in <#"+ channel.getId().asString() +">")
+                                                    .title("\uD83D\uDDD1 Message deleted in <#"+ e.getChannelId().asString() +">")
                                                     .description(author.getUsername())
                                                     .color(Color.LIGHT_SEA_GREEN)
                                                     .addField("Content", e.getContent(), false)
