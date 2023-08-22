@@ -1,19 +1,17 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.models.SlashCommand;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
+import dev.quasemago.maidbot.models.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
-import discord4j.core.object.entity.channel.PrivateChannel;
-import discord4j.core.spec.MessageCreateSpec;
 import discord4j.rest.util.Permission;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.List;
 
 @Component

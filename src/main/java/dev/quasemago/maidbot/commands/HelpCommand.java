@@ -3,7 +3,6 @@ package dev.quasemago.maidbot.commands;
 import dev.quasemago.maidbot.MaidBotApplication;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.models.SlashCommand;
-import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
