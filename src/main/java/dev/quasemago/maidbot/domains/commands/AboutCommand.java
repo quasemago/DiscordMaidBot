@@ -29,7 +29,7 @@ public class AboutCommand extends SlashCommand<ChatInputInteractionEvent> {
                 .title("🤖 " + botName + " About")
                 .url(MaidBotApplication.GITHUB_URL)
                 .description("**" + botName + "** is a simple discord bot project made with java and spring boot.")
-                .addField("Created by", MaidBotApplication.DISCORD_AUTHOR + " (Discord) or "+ MaidBotApplication.GITHUB_AUTHOR +" ([GitHub]("+ MaidBotApplication.GITHUB_AUTHOR_URL +"))", true)
+                .addField("Created by", MaidBotApplication.GITHUB_AUTHOR +" ([GitHub]("+ MaidBotApplication.GITHUB_AUTHOR_URL +"))", true)
                 .addField("Version", MaidBotApplication.VERSION, true)
                 .timestamp(Instant.now())
                 .footer("🤖 BOT ID: " + bot.getId().asString(), null)
