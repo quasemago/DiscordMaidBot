@@ -26,8 +26,8 @@ public class Memes {
     private Date dateCreated;
     @Column(name = "date_updated", nullable = false)
     private Date dateUpdated;
-    @ManyToOne
-    @JoinColumn(name = "guild_parent", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guild_id", nullable = false)
     private GuildServer guild;
 
     public Memes(MemesDTO data) {

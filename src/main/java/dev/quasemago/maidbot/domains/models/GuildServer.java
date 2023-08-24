@@ -2,17 +2,17 @@ package dev.quasemago.maidbot.domains.models;
 
 import dev.quasemago.maidbot.dto.GuildServerDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Entity
+import java.util.List;
+
+@Entity(name = "guild_servers")
+@Table(name = "guild_servers")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "guild_servers")
+@EqualsAndHashCode(of ="id")
 public class GuildServer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,11 @@ public class GuildServer {
     private Long logFlags;
     @Column(name = "log_channel_id")
     private Long logChannelId;
+    @OneToMany(mappedBy = "guild",
+            orphanRemoval = true,
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private List<Memes> memesList;
 
     public GuildServer(GuildServerDTO data) {
         this.guildId = data.guildId();
