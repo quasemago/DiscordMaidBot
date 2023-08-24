@@ -1,12 +1,18 @@
 package dev.quasemago.maidbot.domains.commands;
 
+import dev.quasemago.maidbot.domains.models.GuildServer;
+import dev.quasemago.maidbot.domains.models.SlashCommand;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
-import dev.quasemago.maidbot.domains.models.SlashCommand;
+import dev.quasemago.maidbot.services.GuildServerService;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.util.Permission;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +22,9 @@ import java.util.List;
 
 @Component
 public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
+    @Autowired
+    private GuildServerService guildServerService;
+
     @Override
     public Mono<Void> exe(ChatInputInteractionEvent event) {
         final User author = event.getInteraction()
@@ -42,6 +51,9 @@ public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
             }
             case "logs" -> {
                 return dumpLogs(event);
+            }
+            case "leaveguild" -> {
+                return leaveGuild(event, options);
             }
         }
 
@@ -85,6 +97,39 @@ public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
             return event.reply("The last 150 lines of the logs: ```" + logs + "```")
                     .withEphemeral(true);
         }
+    }
+
+    private Mono<Void> leaveGuild(ChatInputInteractionEvent event, ApplicationCommandInteractionOption option) {
+        final var guildOption = option.getOption("guildid")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .orElse(null);
+
+        if (guildOption == null) {
+            return event.reply("Failed to get guild ID from subcommand args.")
+                    .withEphemeral(true);
+        }
+
+        final Snowflake guildId = Snowflake.of(guildOption.asString());
+
+        final Guild guild = event.getClient()
+                .getGuildById(guildId)
+                .block();
+
+        if (guild == null) {
+            return event.reply("Failed to get guild with ID: " + guildId.asLong())
+                    .withEphemeral(true);
+        }
+
+        // Delete guild server data from database.
+        final GuildServer guildServer = this.guildServerService.getGuildServerByGuildId(guildId.asLong());
+        if (guildServer != null) {
+            this.guildServerService.deleteGuildServer(guildServer);
+        }
+
+        return event.reply("Leaving guild: " + guild.getName() + " [ID: " + guild.getId().asLong() + "]")
+                .withEphemeral(true)
+                .then(guild.leave())
+                .then();
     }
 
     @Override

@@ -24,4 +24,8 @@ public class GuildServerService {
     public void save(GuildServer server) {
         this.repository.save(server);
     }
+
+    public void deleteGuildServer(GuildServer guildServer) {
+        this.repository.delete(guildServer);
+    }
 }

@@ -11,6 +11,19 @@
       "name": "logs",
       "description": "Dump the bot logs.",
       "type": 1
+    },
+    {
+      "name": "leaveguild",
+      "description": "Leave guild",
+      "type": 1,
+      "options": [
+        {
+          "name": "guildid",
+          "description": "ID of the Guild!",
+          "type": 3,
+          "required": 1
+        }
+      ]
     }
   ]
 }
