@@ -1,20 +1,21 @@
 {
   "name": "superadmin",
-  "description": "Owner commands!",
+  "description": "[Owner] Super Admin commands!",
+  "default_member_permissions": "8",
   "options": [
     {
       "name": "stop",
-      "description": "Stop the bot!",
+      "description": "[Owner] Stop the bot!",
       "type": 1
     },
     {
       "name": "logs",
-      "description": "Dump the bot logs.",
+      "description": "[Owner] Dump the bot logs.",
       "type": 1
     },
     {
       "name": "leaveguild",
-      "description": "Leave guild",
+      "description": "[Owner] Leave guild",
       "type": 1,
       "options": [
         {

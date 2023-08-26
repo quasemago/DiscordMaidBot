@@ -1,10 +1,10 @@
 {
   "name": "memes",
-  "description": "Memes!",
+  "description": "System to save those sent memes on the server",
   "options": [
     {
       "name": "add",
-      "description": "add meme",
+      "description": "Add meme.",
       "type": 1,
       "options": [
         {
@@ -23,12 +23,12 @@
     },
     {
       "name": "list",
-      "description": "list memes.",
+      "description": "List memes.",
       "type": 1
     },
     {
       "name": "get",
-      "description": "Get meme",
+      "description": "Get meme.",
       "type": 1,
       "options": [
         {
