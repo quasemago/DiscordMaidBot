@@ -51,16 +51,5 @@ public class SlashCommandListener implements GenericEventListener<ChatInputInter
                         .then();
             }
         }
-        /*
-        return Flux.fromIterable(commands)
-                .filter(command -> command.name().equals(event.getCommandName()))
-                .next()
-                .filterWhen(command -> Utils.hasPermission(event.getInteraction().getGuild().block(), event.getInteraction().getUser(), command.permission()) ? Mono.just(true) : event.reply()
-                        .withEphemeral(true)
-                        .withContent("You don't have permission to use this command.")
-                        .hasElement())
-                .flatMap(command -> command.handle(event))
-                .doOnSuccess(ignore -> Logger.log.debug("Slash command " + event.getCommandName() + " executed by " + event.getInteraction().getUser().getUsername()));
-         */
     }
 }

@@ -7,8 +7,6 @@ import reactor.core.publisher.Mono;
 public interface SlashCommand {
     Mono<Void> handle(ChatInputInteractionEvent event);
     String name();
-    default String description() {
-        return null;
-    }
+    String description();
     Permission permission();
 }

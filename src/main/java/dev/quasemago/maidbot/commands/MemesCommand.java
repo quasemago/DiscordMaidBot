@@ -203,6 +203,11 @@ public class MemesCommand implements SlashCommand {
     }
 
     @Override
+    public String description() {
+        return "System to save those sent memes on the server";
+    }
+
+    @Override
     public Permission permission() {
         return Permission.SEND_MESSAGES;
     }
