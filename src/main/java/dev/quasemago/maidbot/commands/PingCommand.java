@@ -31,6 +31,11 @@ public class PingCommand implements SlashCommand {
     }
 
     @Override
+    public String description() {
+        return "Pong!";
+    }
+
+    @Override
     public Permission permission() {
         return Permission.SEND_MESSAGES;
     }

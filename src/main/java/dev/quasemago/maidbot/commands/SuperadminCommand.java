@@ -137,6 +137,11 @@ public class SuperadminCommand implements SlashCommand {
     }
 
     @Override
+    public String description() {
+        return "[Owner] Super Admin commands!";
+    }
+
+    @Override
     // Not really used as these commands are for the owner only,
     // but required by the interface.
     public Permission permission() {

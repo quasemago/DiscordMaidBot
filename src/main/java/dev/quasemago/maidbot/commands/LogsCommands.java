@@ -258,6 +258,10 @@ public class LogsCommands implements SlashCommand {
     }
 
     @Override
+    public String description() {
+        return "[Admin] Event log system (join, ban, etc)";
+    }
+    @Override
     public Permission permission() {
         return Permission.ADMINISTRATOR;
     }

@@ -45,6 +45,11 @@ public class AboutCommand implements SlashCommand {
     }
 
     @Override
+    public String description() {
+        return "Information about the bot";
+    }
+
+    @Override
     public Permission permission() {
         return Permission.SEND_MESSAGES;
     }
