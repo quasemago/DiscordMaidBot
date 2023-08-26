@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class PingCommand extends SlashCommand<ChatInputInteractionEvent> {
+public class PingCommand implements SlashCommand {
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
         final MessageChannel channel = event.getInteraction()

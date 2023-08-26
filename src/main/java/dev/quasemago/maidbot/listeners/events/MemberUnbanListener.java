@@ -1,33 +1,41 @@
-package dev.quasemago.maidbot.events.listeners;
+package dev.quasemago.maidbot.listeners.events;
 
+import dev.quasemago.maidbot.data.models.GuildServer;
+import dev.quasemago.maidbot.listeners.GenericEventListener;
 import dev.quasemago.maidbot.helpers.LogTypes;
 import dev.quasemago.maidbot.helpers.LogTypesSet;
-import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.services.GuildServerService;
 import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.guild.MemberJoinEvent;
-import discord4j.core.object.entity.Member;
+import discord4j.core.event.domain.guild.UnbanEvent;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 
-public abstract class MemberJoinListener {
+@Component
+public class MemberUnbanListener implements GenericEventListener<UnbanEvent> {
     @Autowired
     private GuildServerService serversService;
 
-    public Mono<Void> onMemberJoin(final MemberJoinEvent event) {
+    @Override
+    public Class<UnbanEvent> getEventType() {
+        return UnbanEvent.class;
+    }
+
+    public Mono<Void> handle(UnbanEvent event) {
         return Mono.just(event)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(e -> {
-                    final Member member = e.getMember();
+                    final User member = e.getUser();
                     if (!member.isBot()) {
-                        Logger.log.debug("Joined guild " + member.getUsername());
+                        Logger.log.debug("User " + member.getUsername() + " unbanned from guild " + e.getGuildId().asLong());
 
                         // Check for log system.
                         final GuildServer serverGuild = this.serversService.getGuildServerByGuildId(e.getGuildId().asLong());
@@ -35,12 +43,12 @@ public abstract class MemberJoinListener {
                         // Log system is enabled.
                         if (serverGuild != null && serverGuild.getLogChannelId() != null && serverGuild.getLogFlags() != null) {
                             final LogTypesSet logTypesSet = LogTypesSet.of(serverGuild.getLogFlags());
-                            if (logTypesSet.contains(LogTypes.MEMBER_JOIN)) {
+                            if (logTypesSet.contains(LogTypes.MEMBER_UNBAN)) {
                                 e.getClient()
                                         .getChannelById(Snowflake.of(serverGuild.getLogChannelId()))
                                         .ofType(MessageChannel.class)
                                         .flatMap(channel -> channel.createMessage(EmbedCreateSpec.builder()
-                                                .title("✅ Member Joined")
+                                                .title("♻️ Member Unbanned")
                                                 .description(member.getUsername())
                                                 .color(Color.SEA_GREEN)
                                                 .thumbnail(member.getAvatarUrl())
@@ -54,7 +62,7 @@ public abstract class MemberJoinListener {
                     }
                 })
                 .onErrorResume(er -> {
-                    Logger.log.error("Error on MemberJoinEvent: " + er.getMessage());
+                    Logger.log.error("Error on UnbanEvent: " + er.getMessage());
                     return Mono.empty();
                 })
                 .then();

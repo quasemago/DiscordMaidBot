@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 @Component
-public class LogsCommands extends SlashCommand<ChatInputInteractionEvent> {
+public class LogsCommands implements SlashCommand {
     @Autowired
     private GuildServerService serversService;
 

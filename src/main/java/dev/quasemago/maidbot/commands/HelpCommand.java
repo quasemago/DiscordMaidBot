@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.util.Map;
 
 @Component
-public class HelpCommand extends SlashCommand<ChatInputInteractionEvent> {
+public class HelpCommand implements SlashCommand {
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
         final MessageChannel channel = event.getInteraction()

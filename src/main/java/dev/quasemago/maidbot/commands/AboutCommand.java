@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 @Component
-public class AboutCommand extends SlashCommand<ChatInputInteractionEvent> {
+public class AboutCommand implements SlashCommand {
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
         final User bot = event.getInteraction()

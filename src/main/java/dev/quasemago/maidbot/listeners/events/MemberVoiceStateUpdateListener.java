@@ -1,5 +1,6 @@
-package dev.quasemago.maidbot.events.listeners;
+package dev.quasemago.maidbot.listeners.events;
 
+import dev.quasemago.maidbot.listeners.GenericEventListener;
 import dev.quasemago.maidbot.helpers.LogTypes;
 import dev.quasemago.maidbot.helpers.LogTypesSet;
 import dev.quasemago.maidbot.data.models.GuildServer;
@@ -13,17 +14,24 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public abstract class MemberVoiceStateUpdateListener {
+@Component
+public class MemberVoiceStateUpdateListener implements GenericEventListener<VoiceStateUpdateEvent> {
     @Autowired
     private GuildServerService serversService;
 
-    public Mono<Void> onMemberVoiceStateUpdate(final VoiceStateUpdateEvent event) {
+    @Override
+    public Class<VoiceStateUpdateEvent> getEventType() {
+        return VoiceStateUpdateEvent.class;
+    }
+
+    public Mono<Void> handle(VoiceStateUpdateEvent event) {
         return Mono.just(event)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(e -> {

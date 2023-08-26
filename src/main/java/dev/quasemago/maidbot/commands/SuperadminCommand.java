@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 
 @Component
-public class SuperadminCommand extends SlashCommand<ChatInputInteractionEvent> {
+public class SuperadminCommand implements SlashCommand {
     @Autowired
     private GuildServerService guildServerService;
 

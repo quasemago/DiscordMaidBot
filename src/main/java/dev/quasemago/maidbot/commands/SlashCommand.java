@@ -4,11 +4,11 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 
-public abstract class SlashCommand<M extends ChatInputInteractionEvent> {
-    public abstract Mono<Void> handle(M event);
-    public abstract String name();
-    public String description() {
+public interface SlashCommand {
+    Mono<Void> handle(ChatInputInteractionEvent event);
+    String name();
+    default String description() {
         return null;
     }
-    public abstract Permission permission();
+    Permission permission();
 }

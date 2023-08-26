@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 @Component
-public class MemesCommand extends SlashCommand<ChatInputInteractionEvent> {
+public class MemesCommand implements SlashCommand {
     @Autowired
     private MemesService memesService;
     @Autowired
