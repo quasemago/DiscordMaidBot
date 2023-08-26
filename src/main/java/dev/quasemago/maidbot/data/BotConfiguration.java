@@ -1,6 +1,6 @@
 package dev.quasemago.maidbot.data;
 
-import dev.quasemago.maidbot.domains.events.GenericEventInterface;
+import dev.quasemago.maidbot.events.GenericEventInterface;
 import dev.quasemago.maidbot.helpers.Logger;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
