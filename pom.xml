@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>dev.quasemago</groupId>
 	<artifactId>DiscordMaidBot</artifactId>
-	<version>0.0.7</version>
+	<version>0.0.8</version>
 	<name>DiscordMaidBot</name>
 	<description>Simple discord bot project made with java and spring boot.</description>
 	<properties>
@@ -72,6 +72,10 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -1,9 +1,9 @@
 package dev.quasemago.maidbot.services;
 
-import dev.quasemago.maidbot.domains.models.GuildServer;
-import dev.quasemago.maidbot.domains.models.Memes;
-import dev.quasemago.maidbot.dto.MemesDTO;
-import dev.quasemago.maidbot.repositories.MemesRepository;
+import dev.quasemago.maidbot.data.models.GuildServer;
+import dev.quasemago.maidbot.data.models.Memes;
+import dev.quasemago.maidbot.data.dto.MemesDTO;
+import dev.quasemago.maidbot.data.repositories.MemesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
