@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Locale;
 
 @Entity(name = "guild_servers")
 @Table(name = "guild_servers")
@@ -29,10 +30,12 @@ public class GuildServer {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private List<Memes> memesList;
+    private Locale locale;
 
     public GuildServer(GuildServerDTO data) {
         this.guildId = data.guildId();
         this.logFlags = data.logFlags();
         this.logChannelId = data.logChannelId();
+        this.locale = data.locale();
     }
 }

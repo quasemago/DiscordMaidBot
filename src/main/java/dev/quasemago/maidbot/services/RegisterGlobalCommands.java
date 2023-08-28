@@ -1,5 +1,6 @@
 package dev.quasemago.maidbot.services;
 
+import dev.quasemago.maidbot.data.BotConfiguration;
 import dev.quasemago.maidbot.helpers.Logger;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
@@ -10,12 +11,12 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 public class RegisterGlobalCommands implements ApplicationRunner {
     @Autowired
     private RestClient client;
