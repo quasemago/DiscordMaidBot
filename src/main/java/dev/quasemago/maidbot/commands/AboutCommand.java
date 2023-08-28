@@ -1,6 +1,7 @@
 package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.MaidBotApplication;
+import dev.quasemago.maidbot.data.models.GuildServer;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -14,7 +15,7 @@ import java.time.Instant;
 @Component
 public class AboutCommand implements SlashCommand {
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final User bot = event.getInteraction()
                 .getClient()
                 .getSelf()

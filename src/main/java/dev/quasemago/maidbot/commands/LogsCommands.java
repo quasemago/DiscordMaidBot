@@ -1,12 +1,10 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.data.dto.GuildServerDTO;
+import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.LogTypes;
 import dev.quasemago.maidbot.helpers.LogTypesSet;
 import dev.quasemago.maidbot.helpers.Logger;
-import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.services.GuildServerService;
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -33,32 +31,21 @@ public class LogsCommands implements SlashCommand {
     private GuildServerService serversService;
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();
 
         if (!(channel instanceof PrivateChannel)) {
-            final Snowflake guild = event.getInteraction()
-                    .getGuildId()
-                    .orElse(null);
-
-            if (guild == null) {
-                Logger.log.error("Failed to get guild id from event: {}", event);
-                return event.reply()
-                        .withEphemeral(true)
-                        .withContent("Failed to get guild.");
-            }
-
             final var options = event.getOptions().get(0);
             final String optionName = options.getName();
 
             switch (optionName) {
                 case "status" -> {
-                    return logsStatus(event, guild);
+                    return logsStatus(event, guildServer);
                 }
                 case "toggle" -> {
-                    return logsToggle(event, guild, options);
+                    return logsToggle(event, guildServer, options);
                 }
             }
 
@@ -71,12 +58,9 @@ public class LogsCommands implements SlashCommand {
         }
     }
 
-    private Mono<Void> logsStatus(ChatInputInteractionEvent event, Snowflake guildId) {
-        final GuildServer serverGuild = this.serversService.getGuildServerByGuildId(guildId.asLong());
-
-        // If the guild is not in the database,
-        // it means that the initial configuration of the logs has not been done yet.
-        if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
+    private Mono<Void> logsStatus(ChatInputInteractionEvent event, GuildServer guildServer) {
+        // Check if the logs are configured.
+        if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
                             .title("\uD83D\uDCF0 Logs Status")
@@ -87,14 +71,14 @@ public class LogsCommands implements SlashCommand {
         } else {
             // Logs is already configured, send a message with the current configuration.
             final StringBuilder logsTypes = new StringBuilder();
-            final LogTypesSet logsSet = LogTypesSet.of(serverGuild.getLogFlags());
+            final LogTypesSet logsSet = LogTypesSet.of(guildServer.getLogFlags());
             logsSet.iterator().forEachRemaining(type -> logsTypes.append(type.getName()).append("\n"));
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
                             .title("\uD83D\uDCF0 Logs Status")
                             .description("Logs are Enabled.\nType ``/logs toggle`` to configure them.")
-                            .addField("Logs Channel", "<#"+ serverGuild.getLogChannelId() +">", false)
+                            .addField("Logs Channel", "<#"+ guildServer.getLogChannelId() +">", false)
                             .addField("Logs Types", logsTypes.toString(), false)
                             .color(Color.GREEN)
                             .build())
@@ -102,25 +86,23 @@ public class LogsCommands implements SlashCommand {
         }
     }
 
-    private Mono<Void> logsToggle(ChatInputInteractionEvent event, Snowflake guildId, ApplicationCommandInteractionOption option) {
-        final GuildServer serverGuild = this.serversService.getGuildServerByGuildId(guildId.asLong());
-        final boolean statusOption = option.getOption("status")
+    private Mono<Void> logsToggle(ChatInputInteractionEvent event, GuildServer guildServer, ApplicationCommandInteractionOption option) {
+        final var statusOption = option.getOption("status")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
-                .get()
-                .asBoolean();
+                .orElse(null);
 
-        if (!statusOption) {
-            // Since the guild isn't in the database,
-            // logs are disabled by default.
-            if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
+        final boolean status = statusOption != null && statusOption.asBoolean();
+        if (!status) {
+            // Check if the logs are already disabled.
+            if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
                 return event.reply("Logs are already disabled.")
                         .withEphemeral(true);
             }
 
             // Disable the logs.
-            serverGuild.setLogChannelId(null);
-            serverGuild.setLogFlags(null);
-            this.serversService.save(serverGuild);
+            guildServer.setLogChannelId(null);
+            guildServer.setLogFlags(null);
+            this.serversService.save(guildServer);
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
@@ -150,11 +132,10 @@ public class LogsCommands implements SlashCommand {
                 .asLong();
 
         // Create a temp menu listener to this event.
-        final Mono<Void> tempListener = createTempMenuListener(event, channelId);
+        final Mono<Void> tempListener = createTempMenuListener(event, guildServer, channelId);
 
-        // If the guild isn't in the database,
-        // it means that the initial configuration of the logs has not been done yet.
-        if (serverGuild == null || serverGuild.getLogChannelId() == null || serverGuild.getLogFlags() == null) {
+        // Check if the logs are already configured.
+        if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
                             .title("\uD83D\uDCF0 Logs Configuration")
@@ -173,7 +154,7 @@ public class LogsCommands implements SlashCommand {
                             .title("\uD83D\uDCF0 Logs Configuration")
                             .description("Logs are already configured.\nConfigure log options:")
                             .build())
-                    .withComponents(ActionRow.of(createTempMenuOptions(serverGuild)))
+                    .withComponents(ActionRow.of(createTempMenuOptions(guildServer)))
                     .withEphemeral(true)
                     .then(tempListener)
                     .onErrorResume(e -> {
@@ -183,7 +164,7 @@ public class LogsCommands implements SlashCommand {
         }
     }
 
-    private Mono<Void> createTempMenuListener(ChatInputInteractionEvent event, long channelId) {
+    private Mono<Void> createTempMenuListener(ChatInputInteractionEvent event, GuildServer guildServer, long channelId) {
         return event.getInteraction()
                 .getClient()
                 .on(SelectMenuInteractionEvent.class, e -> {
@@ -193,27 +174,13 @@ public class LogsCommands implements SlashCommand {
                                 .mapToLong(Long::parseLong)
                                 .sum();
 
-                        final Snowflake guild = e.getInteraction()
-                                .getGuildId()
-                                .orElse(null);
-                        if (guild == null) {
-                            return Mono.empty();
-                        }
-
-                        final long guildId = guild.asLong();
-
-                        GuildServer serverGuild = this.serversService.getGuildServerByGuildId(guildId);
-                        if (serverGuild == null) {
-                            serverGuild = this.serversService.createGuildServer(new GuildServerDTO(guildId, rawValue, channelId));
-                        } else {
-                            serverGuild.setLogChannelId(channelId);
-                            serverGuild.setLogFlags(rawValue);
-                            this.serversService.save(serverGuild);
-                        }
+                        guildServer.setLogChannelId(channelId);
+                        guildServer.setLogFlags(rawValue);
+                        this.serversService.save(guildServer);
 
                         return e.deferEdit()
                                 .then(e.editReply("**Updated!**")
-                                        .withComponents(ActionRow.of(createTempMenuOptions(serverGuild))))
+                                        .withComponents(ActionRow.of(createTempMenuOptions(guildServer))))
                                 .then();
                     } else {
                         return Mono.empty();

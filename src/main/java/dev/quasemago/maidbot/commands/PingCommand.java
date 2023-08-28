@@ -1,5 +1,6 @@
 package dev.quasemago.maidbot.commands;
 
+import dev.quasemago.maidbot.data.models.GuildServer;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.PrivateChannel;
@@ -10,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class PingCommand implements SlashCommand {
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();

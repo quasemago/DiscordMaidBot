@@ -25,7 +25,7 @@ public class SuperadminCommand implements SlashCommand {
     private GuildServerService guildServerService;
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final User author = event.getInteraction()
                 .getUser();
 

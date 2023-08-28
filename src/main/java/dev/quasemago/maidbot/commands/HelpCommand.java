@@ -1,6 +1,7 @@
 package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.MaidBotApplication;
+import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.Utils;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Guild;
@@ -23,7 +24,7 @@ public class HelpCommand implements SlashCommand {
     private List<SlashCommand> slashCommandList;
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();

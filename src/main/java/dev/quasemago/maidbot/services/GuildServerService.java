@@ -21,6 +21,10 @@ public class GuildServerService {
         return server;
     }
 
+    public void deleteGuildServerById(Long id) {
+        this.repository.deleteById(id);
+    }
+
     public void save(GuildServer server) {
         this.repository.save(server);
     }

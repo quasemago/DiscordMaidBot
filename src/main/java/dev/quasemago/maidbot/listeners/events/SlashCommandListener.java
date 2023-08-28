@@ -4,7 +4,10 @@ import dev.quasemago.maidbot.commands.SlashCommand;
 import dev.quasemago.maidbot.listeners.GenericEventListener;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
+import dev.quasemago.maidbot.services.GuildServerService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.Guild;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -12,6 +15,9 @@ import java.util.List;
 
 @Component
 public class SlashCommandListener implements GenericEventListener<ChatInputInteractionEvent> {
+    @Autowired
+    private GuildServerService guildServerService;
+
     private final List<SlashCommand> commands;
 
     public SlashCommandListener(List<SlashCommand> slashCommandList) {
@@ -37,8 +43,9 @@ public class SlashCommandListener implements GenericEventListener<ChatInputInter
                     .then();
         } else {
             try {
-                if (Utils.hasPermission(event.getInteraction().getGuild().block(), event.getInteraction().getUser(), command.permission())) {
-                    return command.handle(event);
+                final Guild guild = event.getInteraction().getGuild().block();
+                if (Utils.hasPermission(guild, event.getInteraction().getUser(), command.permission())) {
+                    return command.handle(event, guild != null ? this.guildServerService.getGuildServerByGuildId(guild.getId().asLong()) : null);
                 } else {
                     return event.createFollowup("You don't have permission to use this command.")
                             .withEphemeral(true)
