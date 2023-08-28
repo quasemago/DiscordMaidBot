@@ -120,9 +120,9 @@ public class SuperadminCommand implements SlashCommand {
         }
 
         // Delete guild server data from database.
-        final GuildServer guildServer = this.guildServerService.getGuildServerByGuildId(guildId.asLong());
-        if (guildServer != null) {
-            this.guildServerService.deleteGuildServer(guildServer);
+        final GuildServer targetGuildServer = this.guildServerService.getGuildServerByGuildId(guildId.asLong());
+        if (targetGuildServer != null) {
+            this.guildServerService.deleteGuildServer(targetGuildServer);
         }
 
         return event.reply("Leaving guild: " + guild.getName() + " [ID: " + guild.getId().asLong() + "]")
