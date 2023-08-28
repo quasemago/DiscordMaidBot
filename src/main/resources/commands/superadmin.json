@@ -25,6 +25,29 @@
           "required": 1
         }
       ]
+    },
+    {
+      "name": "setlanguage",
+      "description": "[Owner] Change the bot language.",
+      "type": 1,
+      "options": [
+        {
+          "name": "lang",
+          "description": "Language code!",
+          "type": 3,
+          "required": 1,
+          "choices": [
+            {
+              "name": "English",
+              "value": "en-US"
+            },
+            {
+              "name": "Portuguese",
+              "value": "pt-BR"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
