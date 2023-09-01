@@ -4,7 +4,9 @@ import dev.quasemago.maidbot.data.dto.GuildServerDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Entity(name = "guild_servers")
 @Table(name = "guild_servers")
@@ -29,10 +31,15 @@ public class GuildServer {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private List<Memes> memesList;
+    private Locale locale;
+    @Column(name = "last_updated")
+    private Date lastUpdated;
 
     public GuildServer(GuildServerDTO data) {
         this.guildId = data.guildId();
         this.logFlags = data.logFlags();
         this.logChannelId = data.logChannelId();
+        this.locale = data.locale();
+        this.lastUpdated = data.lastUpdated();
     }
 }

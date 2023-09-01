@@ -1,12 +1,11 @@
 package dev.quasemago.maidbot.commands;
 
-import dev.quasemago.maidbot.data.dto.GuildServerDTO;
 import dev.quasemago.maidbot.data.dto.MemesDTO;
-import dev.quasemago.maidbot.data.models.Memes;
 import dev.quasemago.maidbot.data.models.GuildServer;
+import dev.quasemago.maidbot.data.models.Memes;
 import dev.quasemago.maidbot.helpers.Logger;
-import dev.quasemago.maidbot.services.MemesService;
 import dev.quasemago.maidbot.services.GuildServerService;
+import dev.quasemago.maidbot.services.MemesService;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -36,7 +35,7 @@ public class MemesCommand implements SlashCommand {
     private final Pattern numericPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
         final MessageChannel channel = event.getInteraction().
                 getChannel().
                 block();
@@ -52,13 +51,6 @@ public class MemesCommand implements SlashCommand {
                 return event.reply()
                         .withEphemeral(true)
                         .withContent("Failed to get memes list.");
-            }
-
-            // Try to get guild server from database.
-            // If not found, create a new guild server.
-            GuildServer guildServer = this.serversService.getGuildServerByGuildId(guildId.asLong());
-            if (guildServer == null) {
-                guildServer = this.serversService.createGuildServer(new GuildServerDTO(guildId.asLong(), null, null));
             }
 
             // TODO: This needs to be improved.

@@ -1,7 +1,9 @@
 package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.MaidBotApplication;
+import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.Utils;
+import dev.quasemago.maidbot.services.TranslatorService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.User;
@@ -21,9 +23,14 @@ import java.util.List;
 public class HelpCommand implements SlashCommand {
     @Autowired
     private List<SlashCommand> slashCommandList;
+    @Autowired
+    private TranslatorService translatorService;
+    private GuildServer server;
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
+        this.server = guildServer;
+
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();
@@ -57,14 +64,14 @@ public class HelpCommand implements SlashCommand {
                     .timestamp(Instant.now())
                     .footer(botName, null);
 
-            spec.addField("Commands List", commands.toString(), false);
+            spec.addField(translatorService.translate(guildServer, "command.help.field.title"), commands.toString(), false);
             final var embed = spec.build();
 
             return event.reply()
                     .withEphemeral(true)
                     .withEmbeds(embed);
         } else {
-            return event.reply("This command can't be done in a PM/DM.")
+            return event.reply(translatorService.translate(guildServer, "command_error.restrict.dm"))
                     .withEphemeral(true);
         }
     }
@@ -76,7 +83,7 @@ public class HelpCommand implements SlashCommand {
 
     @Override
     public String description() {
-        return "Get the list of bot commands";
+        return translatorService.translate(server, "command.help.description");
     }
 
     @Override
