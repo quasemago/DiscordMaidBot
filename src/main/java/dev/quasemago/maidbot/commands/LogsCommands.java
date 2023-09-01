@@ -5,6 +5,7 @@ import dev.quasemago.maidbot.helpers.LogTypes;
 import dev.quasemago.maidbot.helpers.LogTypesSet;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.services.GuildServerService;
+import dev.quasemago.maidbot.services.TranslatorService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -29,9 +30,14 @@ import java.util.concurrent.TimeoutException;
 public class LogsCommands implements SlashCommand {
     @Autowired
     private GuildServerService serversService;
+    @Autowired
+    private TranslatorService translatorService;
+    private GuildServer server;
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
+        this.server = guildServer;
+
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();
@@ -42,72 +48,77 @@ public class LogsCommands implements SlashCommand {
 
             switch (optionName) {
                 case "status" -> {
-                    return logsStatus(event, guildServer);
+                    return logsStatus(event);
                 }
                 case "toggle" -> {
-                    return logsToggle(event, guildServer, options);
+                    return logsToggle(event, options);
                 }
             }
 
             Logger.log.error("Failed to get command options: {}", event);
-            return event.reply("Failed get command options.")
+            return event.reply(translatorService.translate(guildServer, "command_error.failedtogetoptions"))
                     .withEphemeral(true);
         } else {
-            return event.reply("This command can't be done in a PM/DM.")
+            return event.reply(translatorService.translate(guildServer, "command_error.restrict.dm"))
                     .withEphemeral(true);
         }
     }
 
-    private Mono<Void> logsStatus(ChatInputInteractionEvent event, GuildServer guildServer) {
+    private Mono<Void> logsStatus(ChatInputInteractionEvent event) {
         // Check if the logs are configured.
-        if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
+        if (server.getLogChannelId() == null || server.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
                             .title("\uD83D\uDCF0 Logs Status")
-                            .description("Logs have not yet been configured.\nType ``/logs toggle`` to configure them.")
+                            .description(translatorService.translate(server, "command.logs.field.notyetconfigured"))
                             .color(Color.RED)
                             .build())
                     .withEphemeral(true);
         } else {
             // Logs is already configured, send a message with the current configuration.
             final StringBuilder logsTypes = new StringBuilder();
-            final LogTypesSet logsSet = LogTypesSet.of(guildServer.getLogFlags());
+            final LogTypesSet logsSet = LogTypesSet.of(server.getLogFlags());
             logsSet.iterator().forEachRemaining(type -> logsTypes.append(type.getName()).append("\n"));
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
                             .title("\uD83D\uDCF0 Logs Status")
-                            .description("Logs are Enabled.\nType ``/logs toggle`` to configure them.")
-                            .addField("Logs Channel", "<#"+ guildServer.getLogChannelId() +">", false)
-                            .addField("Logs Types", logsTypes.toString(), false)
+                            .description(translatorService.translate(server, "command.logs.field.alreadyconfigured"))
+                            .addField(translatorService.translate(server, "command.logs.field.title.channel"), "<#"+ server.getLogChannelId() +">", false)
+                            .addField(translatorService.translate(server, "command.logs.field.title.types"), logsTypes.toString(), false)
                             .color(Color.GREEN)
                             .build())
                     .withEphemeral(true);
         }
     }
 
-    private Mono<Void> logsToggle(ChatInputInteractionEvent event, GuildServer guildServer, ApplicationCommandInteractionOption option) {
+    private Mono<Void> logsToggle(ChatInputInteractionEvent event, ApplicationCommandInteractionOption option) {
         final var statusOption = option.getOption("status")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .orElse(null);
 
-        final boolean status = statusOption != null && statusOption.asBoolean();
+        if (statusOption == null) {
+            return event.reply(translatorService.translate(server, "command_error.failedtogetoptionsvalue"))
+                    .withEphemeral(true);
+        }
+
+        final boolean status = statusOption.asBoolean();
         if (!status) {
             // Check if the logs are already disabled.
-            if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
-                return event.reply("Logs are already disabled.")
+            if (server.getLogChannelId() == null || server.getLogFlags() == null) {
+                return event.reply(translatorService.translate(server, "command.logs.reply.failed.alreadydisabled"))
                         .withEphemeral(true);
             }
 
             // Disable the logs.
-            guildServer.setLogChannelId(null);
-            guildServer.setLogFlags(null);
-            this.serversService.save(guildServer);
+            server.setLogChannelId(null);
+            server.setLogFlags(null);
+            this.serversService.saveGuildServer(server);
 
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("\uD83D\uDCF0 Logs Disabled")
-                            .description("Logs have been disabled.")
+                            .title("\uD83D\uDCF0 " + translatorService.translate(server, "command.logs.field.disabled.title"))
+                            .description(translatorService.translate(server, "command.logs.field.disabled.text"))
                             .build())
                     .withEphemeral(true);
         }
@@ -122,7 +133,7 @@ public class LogsCommands implements SlashCommand {
             Logger.log.error("Failed to get channel from event: {}", event);
             return event.reply()
                     .withEphemeral(true)
-                    .withContent("Failed. Since you are enabling logs, you must specify a channel.");
+                    .withContent(translatorService.translate(server, "command.logs.reply.failed.mustspecifychannel"));
         }
 
         final long channelId = Objects.requireNonNull(channelOption
@@ -132,14 +143,15 @@ public class LogsCommands implements SlashCommand {
                 .asLong();
 
         // Create a temp menu listener to this event.
-        final Mono<Void> tempListener = createTempMenuListener(event, guildServer, channelId);
+        // TODO: Create a interaction menu interface.
+        final Mono<Void> tempListener = createTempMenuListener(event, server, channelId);
 
         // Check if the logs are already configured.
-        if (guildServer.getLogChannelId() == null || guildServer.getLogFlags() == null) {
+        if (server.getLogChannelId() == null || server.getLogFlags() == null) {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("\uD83D\uDCF0 Logs Configuration")
-                            .description("Logs have not yet been configured.\nConfigure log options:")
+                            .title("\uD83D\uDCF0 " + translatorService.translate(server, "command.logs.field.configuration.title"))
+                            .description(translatorService.translate(server, "command.logs.field.configuration.notyetconfigured"))
                             .build())
                     .withComponents(ActionRow.of(createTempMenuOptions(null)))
                     .withEphemeral(true)
@@ -151,10 +163,10 @@ public class LogsCommands implements SlashCommand {
         } else {
             return event.reply()
                     .withEmbeds(EmbedCreateSpec.builder()
-                            .title("\uD83D\uDCF0 Logs Configuration")
-                            .description("Logs are already configured.\nConfigure log options:")
+                            .title("\uD83D\uDCF0 " + translatorService.translate(server, "command.logs.field.configuration.title"))
+                            .description(translatorService.translate(server, "command.logs.field.configuration.alreadyconfigured"))
                             .build())
-                    .withComponents(ActionRow.of(createTempMenuOptions(guildServer)))
+                    .withComponents(ActionRow.of(createTempMenuOptions(server)))
                     .withEphemeral(true)
                     .then(tempListener)
                     .onErrorResume(e -> {
@@ -176,10 +188,10 @@ public class LogsCommands implements SlashCommand {
 
                         guildServer.setLogChannelId(channelId);
                         guildServer.setLogFlags(rawValue);
-                        this.serversService.save(guildServer);
+                        this.serversService.saveGuildServer(guildServer);
 
                         return e.deferEdit()
-                                .then(e.editReply("**Updated!**")
+                                .then(e.editReply(translatorService.translate(guildServer, "command.logs.reply.configuration.updated"))
                                         .withComponents(ActionRow.of(createTempMenuOptions(guildServer))))
                                 .then();
                     } else {
@@ -226,7 +238,7 @@ public class LogsCommands implements SlashCommand {
 
     @Override
     public String description() {
-        return "[Admin] Event log system (join, ban, etc)";
+        return translatorService.translate(server, "command.logs.description");
     }
     @Override
     public Permission permission() {

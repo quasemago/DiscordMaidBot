@@ -2,6 +2,7 @@ package dev.quasemago.maidbot.commands;
 
 import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.services.GuildServerService;
+import dev.quasemago.maidbot.services.TranslatorService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.entity.channel.MessageChannel;
@@ -17,9 +18,14 @@ import java.util.Locale;
 public class SetlanguageCommand implements SlashCommand {
     @Autowired
     private GuildServerService guildServerService;
+    @Autowired
+    private TranslatorService translatorService;
+    private GuildServer server;
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
+        this.server = guildServer;
+
         final MessageChannel channel = event.getInteraction()
                 .getChannel()
                 .block();
@@ -30,7 +36,7 @@ public class SetlanguageCommand implements SlashCommand {
                     .orElse(null);
 
             if (option == null) {
-                return event.reply("Failed to get language code from args.")
+                return event.reply(translatorService.translate(guildServer, "command_error.failedtogetoptionsvalue"))
                         .withEphemeral(true);
             }
 
@@ -38,12 +44,12 @@ public class SetlanguageCommand implements SlashCommand {
 
             // Update guild database.
             guildServer.setLocale(locale);
-            this.guildServerService.save(guildServer);
+            this.guildServerService.saveGuildServer(guildServer);
 
-            return event.reply("Set language to: " + option.asString() + ".")
+            return event.reply(translatorService.translate(guildServer, "command.setlanguage.languageupdated", option.asString()))
                     .withEphemeral(true);
         } else {
-            return event.reply("This command can't be done in a PM/DM.")
+            return event.reply(translatorService.translate(guildServer, "command_error.restrict.dm"))
                     .withEphemeral(true);
         }
     }
@@ -55,12 +61,10 @@ public class SetlanguageCommand implements SlashCommand {
 
     @Override
     public String description() {
-        return "[Admin] Change the bot language!";
+        return translatorService.translate(server, "command.setlanguage.description");
     }
 
     @Override
-    // Not really used as these commands are for the owner only,
-    // but required by the interface.
     public Permission permission() {
         return Permission.ADMINISTRATOR;
     }

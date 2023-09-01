@@ -21,19 +21,20 @@ public class TranslatorService {
         source = messageSource;
     }
 
-    public String translate(Locale locale, String key, Object... args) {
+    public String translate(GuildServer guildServer, String key, Object... args) {
+        // Check if guild server is valid, since it is possible that it is a DM/PM command.
+        if (guildServer == null || guildServer.getLocale() == null) {
+            return translate(BotConfiguration.getBotDefaultLanguage(), key, args);
+        }
+        return translate(guildServer.getLocale(), key, args);
+    }
+
+    private String translate(Locale locale, String key, Object... args) {
         try {
             return source.getMessage(key, args, locale);
         } catch (Exception e) {
             Logger.log.error("Failed to translate message: " + key + " | locale: " + locale);
             return "Failed to translate message: " + key;
         }
-    }
-
-    public String translate(GuildServer guildServer, String key, Object... args) {
-        if (guildServer == null || guildServer.getLocale() == null) {
-            return translate(BotConfiguration.getBotDefaultLanguage(), key, args);
-        }
-        return translate(guildServer.getLocale(), key, args);
     }
 }

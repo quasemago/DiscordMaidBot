@@ -1,10 +1,13 @@
 package dev.quasemago.maidbot.listeners.events;
 
 import dev.quasemago.maidbot.commands.SlashCommand;
+import dev.quasemago.maidbot.data.BotConfiguration;
+import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.listeners.GenericEventListener;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import dev.quasemago.maidbot.services.GuildServerService;
+import dev.quasemago.maidbot.services.TranslatorService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Guild;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,8 @@ import java.util.List;
 public class SlashCommandListener implements GenericEventListener<ChatInputInteractionEvent> {
     @Autowired
     private GuildServerService guildServerService;
+    @Autowired
+    private TranslatorService translatorService;
 
     private final List<SlashCommand> commands;
 
@@ -38,16 +43,18 @@ public class SlashCommandListener implements GenericEventListener<ChatInputInter
 
         if (command == null) {
             Logger.log.error("Slash command " + event.getCommandName() + " not found.");
-            return event.createFollowup("Slash command " + event.getCommandName() + " not found.")
+            return event.createFollowup("Slash command "+ event.getCommandName() +" not found.")
                     .withEphemeral(true)
                     .then();
         } else {
             try {
                 final Guild guild = event.getInteraction().getGuild().block();
+                final GuildServer guildServer = this.guildServerService.getGuildServerByGuild(guild);
+
                 if (Utils.hasPermission(guild, event.getInteraction().getUser(), command.permission())) {
-                    return command.handle(event, guild != null ? this.guildServerService.getGuildServerByGuildId(guild.getId().asLong()) : null);
+                    return command.handle(event, guildServer);
                 } else {
-                    return event.createFollowup("You don't have permission to use this command.")
+                    return event.createFollowup(translatorService.translate(guildServer, "command_error.restrict.permission"))
                             .withEphemeral(true)
                             .then();
                 }
