@@ -1,20 +1,21 @@
 {
   "name": "logs",
-  "description": "Logs Feature!",
+  "description": "[Admin] Event log system (join, ban, etc)",
+  "default_member_permissions": "8",
   "options": [
     {
       "name": "status",
-      "description": "Get server logs status.",
+      "description": "[Admin] Get server log system status.",
       "type": 1
     },
     {
       "name": "toggle",
-      "description": "Toggle log system.",
+      "description": "[Admin] Toggle log system (enable or disable).",
       "type": 1,
       "options": [
         {
             "name": "status",
-            "description": "Enable or disabled log system.",
+            "description": "Enable or disable log system.",
             "type": 5,
             "required": true
         },

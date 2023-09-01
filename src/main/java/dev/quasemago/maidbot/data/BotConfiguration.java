@@ -20,6 +20,7 @@ import reactor.netty.resources.ConnectionProvider;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Configuration
 public class BotConfiguration {
@@ -36,6 +37,13 @@ public class BotConfiguration {
     }
     public static String getBotDatabaseUrl() {
         return dotenv.get("BOT_DATABASE_URL");
+    }
+    public static Locale getBotDefaultLanguage() {
+        final String defaultLanguage = dotenv.get("BOT_DEFAULT_LANGUAGE");
+        if (defaultLanguage == null || defaultLanguage.isEmpty()) {
+            return Locale.ENGLISH;
+        }
+        return Locale.forLanguageTag(defaultLanguage);
     }
 
     @Bean

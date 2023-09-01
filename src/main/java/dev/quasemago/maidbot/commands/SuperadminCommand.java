@@ -4,6 +4,7 @@ import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.helpers.Utils;
 import dev.quasemago.maidbot.services.GuildServerService;
+import dev.quasemago.maidbot.services.TranslatorService;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -23,16 +24,21 @@ import java.util.List;
 public class SuperadminCommand implements SlashCommand {
     @Autowired
     private GuildServerService guildServerService;
+    @Autowired
+    private TranslatorService translatorService;
+    private GuildServer server;
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event, GuildServer guildServer) {
+        this.server = guildServer;
+
         final User author = event.getInteraction()
                 .getUser();
 
         // TODO: Create a custom permissions system to only allow commands for the owner,
         //  instead of hardcoded this in the command event.
         if (!Utils.isBotOwner(author)) {
-            return event.reply("Only the bot owner can use this command.")
+            return event.reply(translatorService.translate(guildServer, "command_error.restrict.owner"))
                     .withEphemeral(true);
         }
 
@@ -41,7 +47,7 @@ public class SuperadminCommand implements SlashCommand {
 
         switch (optionName) {
             case "stop" -> {
-                return event.reply("Bot is stopping...")
+                return event.reply(translatorService.translate(guildServer, "command.superadmin.stoppingbot"))
                         .withEphemeral(false)
                         .doOnSuccess(ignore -> {
                             Logger.log.info("Bot is stopping...");
@@ -57,15 +63,15 @@ public class SuperadminCommand implements SlashCommand {
         }
 
         Logger.log.error("Failed to get command options: {}", event);
-        return event.reply("Failed get command options.")
+        return event.reply(translatorService.translate(guildServer, "command_error.failedtogetoptions"))
                 .withEphemeral(true);
     }
 
     private Mono<Void> dumpLogs(ChatInputInteractionEvent event) {
-        // Get last 100 lines of local logs.
+        // Get last 150 lines of local logs.
         final List<String> logsLines = Utils.readLastLine(new File("logs/maidbot.log"), 150);
         if (logsLines.size() == 0) {
-            return event.reply("Failed to read logs file.")
+            return event.reply(translatorService.translate(server, "command.superadmin.reply.failed.readlogs"))
                     .withEphemeral(true);
         }
 
@@ -74,26 +80,26 @@ public class SuperadminCommand implements SlashCommand {
 
         final String logs = sb.toString();
 
+        // Check if the logs are longer than 1750 characters.
         if (logs.length() > 1750) {
-            // Send the first message with the logs.
-            final MessageChannel channel = event.getInteraction()
+            final MessageChannel privateChannel = event.getInteraction()
                     .getUser()
                     .getPrivateChannel()
                     .block();
 
-            if (channel == null) {
-                return event.reply("Failed to get your private channel interaction. Try again!")
+            if (privateChannel == null) {
+                return event.reply(translatorService.translate(server, "command.superadmin.reply.failed.getdmchannel"))
                         .withEphemeral(true);
             }
 
-            return event.reply("The last 150 lines of the logs have been sent to your DM!")
+            return event.reply(translatorService.translate(server, "command.superadmin.reply.senttodm"))
                     .withEphemeral(true)
-                    .then(channel.createMessage(msg ->
+                    .then(privateChannel.createMessage(msg ->
                             msg.addFile("maidbot.log", new ByteArrayInputStream(logs.getBytes()))))
                     .then();
         } else {
-            // Since the logs are less than 2000 characters, we can just send it in one message.
-            return event.reply("The last 150 lines of the logs: ```" + logs + "```")
+            // Since the logs are less than 1750 characters, we can just send it in one message.
+            return event.reply(translatorService.translate(server, "command.superadmin.reply.logs") + " ```" + logs + "```")
                     .withEphemeral(true);
         }
     }
@@ -104,28 +110,27 @@ public class SuperadminCommand implements SlashCommand {
                 .orElse(null);
 
         if (guildOption == null) {
-            return event.reply("Failed to get guild ID from subcommand args.")
+            return event.reply(translatorService.translate(server, "command_error.failedtogetoptionsvalue"))
                     .withEphemeral(true);
         }
 
         final Snowflake guildId = Snowflake.of(guildOption.asString());
-
         final Guild guild = event.getClient()
                 .getGuildById(guildId)
                 .block();
 
         if (guild == null) {
-            return event.reply("Failed to get guild with ID: " + guildId.asLong())
+            return event.reply(translatorService.translate(server, "command.superadmin.reply.failed.getguild", guildId.asLong()))
                     .withEphemeral(true);
         }
 
         // Delete guild server data from database.
-        final GuildServer guildServer = this.guildServerService.getGuildServerByGuildId(guildId.asLong());
-        if (guildServer != null) {
-            this.guildServerService.deleteGuildServer(guildServer);
+        final GuildServer targetGuildServer = this.guildServerService.getGuildServerByGuildId(guildId.asLong());
+        if (targetGuildServer != null) {
+            this.guildServerService.deleteGuildServer(targetGuildServer);
         }
 
-        return event.reply("Leaving guild: " + guild.getName() + " [ID: " + guild.getId().asLong() + "]")
+        return event.reply(translatorService.translate(server, "command.superadmin.reply.leaving", guild.getName(), guildId.asLong()))
                 .withEphemeral(true)
                 .then(guild.leave())
                 .then();
@@ -134,6 +139,11 @@ public class SuperadminCommand implements SlashCommand {
     @Override
     public String name() {
         return "superadmin";
+    }
+
+    @Override
+    public String description() {
+        return translatorService.translate(server, "command.superadmin.description");
     }
 
     @Override
