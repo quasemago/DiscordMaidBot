@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
-import java.util.List;
 import java.util.Locale;
 
 @Entity(name = "guild_servers")
@@ -26,11 +25,6 @@ public class GuildServer {
     private Long logFlags;
     @Column(name = "log_channel_id")
     private Long logChannelId;
-    @OneToMany(mappedBy = "guild",
-            orphanRemoval = true,
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
-    private List<Memes> memesList;
     private Locale locale;
     @Column(name = "last_updated")
     private Date lastUpdated;
