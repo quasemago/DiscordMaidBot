@@ -1,5 +1,6 @@
 package dev.quasemago.maidbot.listeners.events;
 
+import dev.quasemago.maidbot.data.models.GuildServer;
 import dev.quasemago.maidbot.helpers.Logger;
 import dev.quasemago.maidbot.listeners.GenericEventListener;
 import dev.quasemago.maidbot.services.GuildServerService;
@@ -20,15 +21,19 @@ public class GuildDeleteListener implements GenericEventListener<GuildDeleteEven
 
     public Mono<Void> handle(GuildDeleteEvent event) {
         return Mono.just(event)
-                .doOnSuccess(e -> {
-                    e.getGuild()
-                            .ifPresent(guild -> {
-                                Logger.log.info("Left guild " + guild.getName());
+                .doOnSuccess(e -> e.getGuild()
+                        .ifPresent(guild -> {
+                            Logger.log.debug("Left guild " + guild.getName() + "[is unavailable: " + e.isUnavailable() + "]");
 
+                            // Don't delete guild from database if unavailable, as this is likely due to a Discord outage.
+                            if (!e.isUnavailable()) {
                                 // Delete guild from database, if exists.
-                                this.guildServerService.deleteGuildServerById(guild.getId().asLong());
-                            });
-                })
+                                final GuildServer guildServer = this.guildServerService.getGuildServerByGuild(guild);
+                                if (guildServer != null) {
+                                    this.guildServerService.deleteGuildServer(guildServer);
+                                }
+                            }
+                        }))
                 .then();
     }
 }

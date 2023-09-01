@@ -1,6 +1,5 @@
 package dev.quasemago.maidbot.services;
 
-import dev.quasemago.maidbot.data.BotConfiguration;
 import dev.quasemago.maidbot.helpers.Logger;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
